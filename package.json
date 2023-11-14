@@ -1,0 +1,29 @@
+{
+  "name": "p2p-auth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "p2p-auth": "./bin.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bip32": "^4.0.0",
+    "bip39": "^3.1.0",
+    "brittle": "^3.3.2",
+    "commander": "^11.1.0",
+    "hypercore-crypto": "^3.4.0",
+    "inquirer": "^9.2.12",
+    "sodium-universal": "^4.0.0",
+    "tiny-secp256k1": "^2.2.3"
+  },
+  "devDependencies": {
+    "standard": "^17.1.0"
+  }
+}

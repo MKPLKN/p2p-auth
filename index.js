@@ -15,11 +15,13 @@ import {
   decryptSeed,
   encryptSeed
 } from './src/utils/seed.js'
-import { createUser } from './src/utils/users.js'
+import { createUser, authUser, restoreUser } from './src/utils/users.js'
 
 export {
   authCLI,
   createUser,
+  authUser,
+  restoreUser,
   getDerivationPath,
   getNextDerivedPath,
   increaseDerivationPath,

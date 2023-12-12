@@ -1,6 +1,10 @@
 {
   "name": "p2p-auth",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MKPLKN/p2p-auth.git"
+  },
   "description": "",
   "main": "index.js",
   "type": "module",

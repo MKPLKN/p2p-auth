@@ -1,4 +1,5 @@
 import { authCLI } from './src/commands/auth.js'
+import { Memory } from './src/utils/memory.js'
 import {
   getDerivationPath,
   getNextDerivedPath,
@@ -18,6 +19,7 @@ import {
 import { createUser, authUser, restoreUser } from './src/utils/users.js'
 
 export {
+  Memory,
   authCLI,
   createUser,
   authUser,

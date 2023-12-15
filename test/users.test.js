@@ -3,6 +3,7 @@ import { createUser, authUser, restoreUser } from '../src/utils/users.js'
 import { validateKeyPair } from 'hypercore-crypto'
 import { validateMnemonic } from 'bip39'
 import { validateSeed } from '../src/utils/seed.js'
+import { Memory } from '../src/utils/memory.js'
 
 test('create, authenticate, and restore user flow', async (t) => {
   const username = 'testuser'
@@ -20,6 +21,12 @@ test('create, authenticate, and restore user flow', async (t) => {
     secretKey: createdUser.keyPair.secretKey
   }), 'Created users key pair should be valid')
 
+  // Testing the memory
+  t.ok(Memory.getKeyPair(), 'Key pair should be set after auth')
+  t.ok(Memory.getKeyPair('pubkey'), 'Public key should be set after auth')
+  t.ok(Memory.getKeyPair('secretKey'), 'Secret key should be set after auth')
+  t.ok(Memory.getSeed(), 'Seed should be set after auth')
+
   // Step 2: Authenticate User
   const authenticatedUser = await authUser({ username, password })
   t.ok(authenticatedUser, 'User should be authenticated')
@@ -30,6 +37,11 @@ test('create, authenticate, and restore user flow', async (t) => {
   }), 'Authenticated key pair should be valid')
   t.ok(validateSeed(authenticatedUser.seed), 'Authenticated seed should be valid')
   t.is(authenticatedUser.seed, createdUser.seed, 'Seeds should match for authenticated user')
+
+  // Testing the memory
+  t.alike(Memory.getKeyPair('publicKey'), authenticatedUser.keyPair.publicKey, 'Public key should match')
+  t.alike(Memory.getKeyPair('secretKey'), authenticatedUser.keyPair.secretKey, 'Secret key should match')
+  t.alike(Memory.getSeed(), authenticatedUser.seed, 'Seed should match')
 
   // Step 3: Restore User
   const restoredUser = await restoreUser({ seedPhrase: createdUser.mnemonic, username, password })

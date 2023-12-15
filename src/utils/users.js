@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import { retrieveEncryptedSeedAndSalt, storeEncryptedSeedAndSalt } from './storage.js'
 import { generateKeyPairFromSeed, decryptSeed, encryptSeed, generateRandomSeed, mnemonicToSeed, seedToMnemonic } from './seed.js'
+import { Memory } from './memory.js'
 
 export async function createUser ({ username, password }) {
   // Generate a random seed directly
@@ -18,6 +19,8 @@ export async function createUser ({ username, password }) {
 
   // Convert seed to a mnemonic phrase for user (for backup)
   const mnemonic = seedToMnemonic(seed)
+
+  Memory.initialize({ username, keyPair, seed })
 
   return { mnemonic, keyPair, seed }
 }
@@ -38,6 +41,8 @@ export async function restoreUser ({ seedPhrase, username, password }) {
   // Generate the key pair from the seed
   const keyPair = generateKeyPairFromSeed(seed)
 
+  Memory.initialize({ username, keyPair, seed })
+
   return keyPair
 }
 
@@ -55,8 +60,10 @@ export async function authUser ({ username, password }) {
     // Generate the key pair from the seed
     const keyPair = generateKeyPairFromSeed(seed)
 
+    Memory.initialize({ username, keyPair, seed })
+
     // If keyPair is successfully generated, the user is authenticated
-    return { keyPair, seed }
+    return { username, keyPair, seed }
   } catch (error) {
     return null
   }

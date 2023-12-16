@@ -1,18 +1,18 @@
-import { BIP32Factory } from 'bip32'
-import ecc from '@bitcoinerlab/secp256k1'
-import crypto from 'crypto'
-import bip39 from 'bip39'
-import sodium from 'sodium-universal'
-import { keyPair } from 'hypercore-crypto'
+const { BIP32Factory } = require('bip32')
+const ecc = require('@bitcoinerlab/secp256k1')
+const crypto = require('crypto')
+const bip39 = require('bip39')
+const sodium = require('sodium-universal')
+const { keyPair } = require('hypercore-crypto')
 
 let bip32 = null
-export function getBip32 () {
+function getBip32 () {
   if (bip32) return bip32
   bip32 = BIP32Factory(ecc)
   return bip32
 }
 
-export function getPathLastIndex (path) {
+function getPathLastIndex (path) {
   // Split the path into components
   const parts = path.split('/')
 
@@ -23,29 +23,29 @@ export function getPathLastIndex (path) {
 }
 
 // Validation function for seed
-export function validateSeed (seed) {
+function validateSeed (seed) {
   // Example: Validate the seed's length and format
   const expectedLength = 64 // Assuming a 32-byte seed represented in hexadecimal
   const hexRegex = /^[0-9a-fA-F]{64}$/ // Regex for 64-character hexadecimal
   return typeof seed === 'string' && seed.length === expectedLength && hexRegex.test(seed)
 }
 
-export function validateSeedPhrase (seedPhrase) {
+function validateSeedPhrase (seedPhrase) {
   return bip39.validateMnemonic(seedPhrase)
 }
 
-export function isValidPath (path) {
+function isValidPath (path) {
   // Regular expression to match the pattern "m/x'/y/z" where x, y, z are numbers and the apostrophe is optional
   const validPathRegex = /^m(\/\d+'?)*$/
 
   return validPathRegex.test(path)
 }
 
-export function getDerivationPath (index = 0) {
+function getDerivationPath (index = 0) {
   return `m/0'/1/${index}`
 }
 
-export function getNextDerivedPath (paths) {
+function getNextDerivedPath (paths) {
   if (!Array.isArray(paths) || paths.length === 0) {
     return "m/0'/1/0"
   }
@@ -68,7 +68,7 @@ export function getNextDerivedPath (paths) {
   return `${base.join('/')}/${highestIndex + 1}`
 }
 
-export function increaseDerivationPath (path) {
+function increaseDerivationPath (path) {
   if (!isValidPath(path)) {
     throw new Error(`Invalid path ${path}`)
   }
@@ -85,7 +85,7 @@ export function increaseDerivationPath (path) {
   return parts.join('/')
 }
 
-export function generateKeyPairFromSeed (seed) {
+function generateKeyPairFromSeed (seed) {
   if (typeof seed === 'string') {
     return keyPair(Buffer.from(seed, 'hex'))
   }
@@ -93,7 +93,7 @@ export function generateKeyPairFromSeed (seed) {
   return keyPair(seed)
 }
 
-export function generateMasterKeyPairFromMnemonic (mnemonic) {
+function generateMasterKeyPairFromMnemonic (mnemonic) {
   if (!bip39.validateMnemonic(mnemonic)) {
     throw new Error('Invalid mnemonic')
   }
@@ -105,7 +105,7 @@ export function generateMasterKeyPairFromMnemonic (mnemonic) {
   return generateKeyPairFromSeed(seed.slice(0, 32)) // Use the first 32 bytes for libsodium
 }
 
-export function generateEncryptionKeyFromKeyPair (keyPair) {
+function generateEncryptionKeyFromKeyPair (keyPair) {
   const { publicKey, secretKey } = keyPair
 
   if (!publicKey || !secretKey) {
@@ -125,13 +125,13 @@ export function generateEncryptionKeyFromKeyPair (keyPair) {
   return encryptionKey
 }
 
-export function generateChildKeyPair (seed, path = "m/0'/1/0") {
+function generateChildKeyPair (seed, path = "m/0'/1/0") {
   return generateKeyPairFromSeed(
     deriveChildSeed(seed, path)
   )
 }
 
-export function generateRandomSeed () {
+function generateRandomSeed () {
   // Create a buffer to hold the seed
   const seed = Buffer.alloc(sodium.crypto_sign_SEEDBYTES)
 
@@ -142,14 +142,14 @@ export function generateRandomSeed () {
   return seed.toString('hex')
 }
 
-export function deriveChildSeed (seed, path = "m/0'/1/0") {
+function deriveChildSeed (seed, path = "m/0'/1/0") {
   const ms = typeof seed === 'string' ? Buffer.from(seed, 'hex') : seed
   const node = getBip32().fromSeed(ms)
   const child = node.derivePath(path)
   return child.privateKey
 }
 
-export function seedToMnemonic (seed) {
+function seedToMnemonic (seed) {
   // Convert the seed to a Buffer
   const seedBuffer = Buffer.from(seed, 'hex')
 
@@ -158,7 +158,7 @@ export function seedToMnemonic (seed) {
   return mnemonic
 }
 
-export function mnemonicToSeed (mnemonic) {
+function mnemonicToSeed (mnemonic) {
   if (!bip39.validateMnemonic(mnemonic)) {
     throw new Error('Invalid mnemonic phrase.')
   }
@@ -170,7 +170,7 @@ export function mnemonicToSeed (mnemonic) {
   return entropy
 }
 
-export function decryptSeed (iv, encryptedSeed, authTag, password, salt) {
+function decryptSeed (iv, encryptedSeed, authTag, password, salt) {
   // Derive a key using PBKDF2 with the password and salt
   const key = crypto.pbkdf2Sync(password, salt.toString('hex'), 100000, 32, 'sha512')
 
@@ -185,7 +185,7 @@ export function decryptSeed (iv, encryptedSeed, authTag, password, salt) {
   return decrypted
 }
 
-export function encryptSeed (seed, password, salt) {
+function encryptSeed (seed, password, salt) {
   // Generate a key using PBKDF2 with the password and salt
   const key = crypto.pbkdf2Sync(password, salt.toString('hex'), 100000, 32, 'sha512')
 
@@ -201,4 +201,25 @@ export function encryptSeed (seed, password, salt) {
 
   // Concatenate the IV and authentication tag with the encrypted data
   return iv.toString('hex') + encrypted + cipher.getAuthTag().toString('hex')
+}
+
+module.exports = {
+  getBip32,
+  getPathLastIndex,
+  validateSeed,
+  validateSeedPhrase,
+  isValidPath,
+  getDerivationPath,
+  getNextDerivedPath,
+  increaseDerivationPath,
+  generateKeyPairFromSeed,
+  generateMasterKeyPairFromMnemonic,
+  generateEncryptionKeyFromKeyPair,
+  generateChildKeyPair,
+  generateRandomSeed,
+  deriveChildSeed,
+  seedToMnemonic,
+  mnemonicToSeed,
+  decryptSeed,
+  encryptSeed
 }

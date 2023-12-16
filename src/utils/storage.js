@@ -1,14 +1,14 @@
-import fs from 'fs/promises'
-import path from 'path'
-import { getConfig } from './config.js'
+const fs = require('fs/promises')
+const path = require('path')
+const { getConfig } = require('./config.js')
 
-export const USERS_LOCATION = getConfig('usersLocation')
+const USERS_LOCATION = getConfig('usersLocation')
 
 function buildUserPath (username) {
   return `${USERS_LOCATION}/${username}.bin`
 }
 
-export async function getUsersList () {
+async function getUsersList () {
   let files = []
   try {
     files = await fs.readdir(USERS_LOCATION)
@@ -31,7 +31,7 @@ export async function getUsersList () {
   return users
 }
 
-export async function retrieveEncryptedSeedAndSalt (username) {
+async function retrieveEncryptedSeedAndSalt (username) {
   const filePath = buildUserPath(username)
 
   try {
@@ -52,7 +52,7 @@ export async function retrieveEncryptedSeedAndSalt (username) {
   }
 }
 
-export async function storeEncryptedSeedAndSalt (username, encryptedSeedWithIVAndTag, saltBuffer) {
+async function storeEncryptedSeedAndSalt (username, encryptedSeedWithIVAndTag, saltBuffer) {
   // Ensure the storage directory exists
   await fs.mkdir(USERS_LOCATION, { recursive: true })
 
@@ -67,4 +67,10 @@ export async function storeEncryptedSeedAndSalt (username, encryptedSeedWithIVAn
 
   // Write the combined binary data to a file
   await fs.writeFile(filePath, combinedBuffer)
+}
+
+module.exports = {
+  getUsersList,
+  retrieveEncryptedSeedAndSalt,
+  storeEncryptedSeedAndSalt
 }

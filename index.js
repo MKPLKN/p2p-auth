@@ -1,6 +1,6 @@
-import { authCLI } from './src/commands/auth.js'
-import { Memory } from './src/utils/memory.js'
-import {
+const authCLI = require('./src/commands/auth.js')
+const Memory = require('./src/utils/memory.js')
+const {
   getDerivationPath,
   getNextDerivedPath,
   increaseDerivationPath,
@@ -15,10 +15,10 @@ import {
   validateSeedPhrase,
   decryptSeed,
   encryptSeed
-} from './src/utils/seed.js'
-import { createUser, authUser, restoreUser } from './src/utils/users.js'
+} = require('./src/utils/seed.js')
+const { createUser, authUser, restoreUser } = require('./src/utils/users.js')
 
-export {
+module.exports = {
   Memory,
   authCLI,
   createUser,

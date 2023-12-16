@@ -1,14 +1,14 @@
-import fs from 'fs'
-import path from 'path'
+const fs = require('fs')
+const path = require('path')
 
 let cachedConfig = null
 
 // Helper function to get default config
-export const getDefaultConfig = () => ({
+const getDefaultConfig = () => ({
   usersLocation: './.p2p-auth'
 })
 
-export const loadConfigs = () => {
+const loadConfigs = () => {
   const defaultConfig = getDefaultConfig()
 
   // Read JSON config file
@@ -31,7 +31,7 @@ export const loadConfigs = () => {
 }
 
 // Getter function
-export const getConfig = (key = null, defaultValue = null) => {
+const getConfig = (key = null, defaultValue = null) => {
   if (cachedConfig === null) {
     loadConfigs()
   }
@@ -42,3 +42,5 @@ export const getConfig = (key = null, defaultValue = null) => {
 
   return Object.prototype.hasOwnProperty.call(cachedConfig, key) ? cachedConfig[key] : defaultValue
 }
+
+module.exports = { getConfig }

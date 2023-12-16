@@ -1,9 +1,9 @@
-import test from 'brittle'
-import { createUser, authUser, restoreUser } from '../src/utils/users.js'
-import { validateKeyPair } from 'hypercore-crypto'
-import { validateMnemonic } from 'bip39'
-import { validateSeed } from '../src/utils/seed.js'
-import { Memory } from '../src/utils/memory.js'
+const test = require('brittle')
+const { createUser, authUser, restoreUser } = require('../src/utils/users.js')
+const { validateKeyPair } = require('hypercore-crypto')
+const { validateMnemonic } = require('bip39')
+const { validateSeed } = require('../src/utils/seed.js')
+const Memory = require('../src/utils/memory.js')
 
 test('create, authenticate, and restore user flow', async (t) => {
   const username = 'testuser'

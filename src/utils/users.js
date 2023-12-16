@@ -1,9 +1,9 @@
-import crypto from 'crypto'
-import { retrieveEncryptedSeedAndSalt, storeEncryptedSeedAndSalt } from './storage.js'
-import { generateKeyPairFromSeed, decryptSeed, encryptSeed, generateRandomSeed, mnemonicToSeed, seedToMnemonic } from './seed.js'
-import { Memory } from './memory.js'
+const crypto = require('crypto')
+const { retrieveEncryptedSeedAndSalt, storeEncryptedSeedAndSalt } = require('./storage.js')
+const { generateKeyPairFromSeed, decryptSeed, encryptSeed, generateRandomSeed, mnemonicToSeed, seedToMnemonic } = require('./seed.js')
+const Memory = require('./memory.js')
 
-export async function createUser ({ username, password }) {
+async function createUser ({ username, password }) {
   // Generate a random seed directly
   const seed = generateRandomSeed()
 
@@ -25,7 +25,7 @@ export async function createUser ({ username, password }) {
   return { mnemonic, keyPair, seed }
 }
 
-export async function restoreUser ({ seedPhrase, username, password }) {
+async function restoreUser ({ seedPhrase, username, password }) {
   // Convert seed phrase to seed
   const seed = mnemonicToSeed(seedPhrase)
 
@@ -46,7 +46,7 @@ export async function restoreUser ({ seedPhrase, username, password }) {
   return keyPair
 }
 
-export async function authUser ({ username, password }) {
+async function authUser ({ username, password }) {
   try {
     // Retrieve the encrypted seed and salt for the username
     const { iv, authTag, encryptedSeed, salt } = await retrieveEncryptedSeedAndSalt(username)
@@ -67,4 +67,10 @@ export async function authUser ({ username, password }) {
   } catch (error) {
     return null
   }
+}
+
+module.exports = {
+  createUser,
+  restoreUser,
+  authUser
 }

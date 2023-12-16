@@ -1,11 +1,15 @@
-import test from 'brittle'
-import sodium from 'sodium-universal'
-import { getBip32, getPathLastIndex, getDerivationPath, getNextDerivedPath, increaseDerivationPath, generateKeyPairFromSeed, generateMasterKeyPairFromMnemonic, generateEncryptionKeyFromKeyPair, generateChildKeyPair, generateRandomSeed, encryptSeed, decryptSeed } from '../src/utils/seed.js'
-import { keyPair } from 'hypercore-crypto'
-import { createUser } from '../src/utils/users.js'
+const test = require('brittle')
+const sodium = require('sodium-universal')
+const { getBip32, getPathLastIndex, getDerivationPath, getNextDerivedPath, increaseDerivationPath, generateKeyPairFromSeed, generateMasterKeyPairFromMnemonic, generateEncryptionKeyFromKeyPair, generateChildKeyPair, generateRandomSeed, encryptSeed, decryptSeed } = require('../src/utils/seed.js')
+const { keyPair } = require('hypercore-crypto')
+const { createUser } = require('../src/utils/users.js')
 
-const userA = await createUser({ username: 'testA', password: 'password' })
-const userB = await createUser({ username: 'testB', password: 'password' })
+async function createUsers () {
+  const userA = await createUser({ username: 'testA', password: 'password' })
+  const userB = await createUser({ username: 'testB', password: 'password' })
+
+  return { userA, userB }
+}
 
 test('getBip32 initializes and returns bip32', async (t) => {
   const bip32Instance = getBip32()
@@ -142,6 +146,7 @@ test('generateEncryptionKeyFromKeyPair', async (t) => {
 
 // Consistency test for the same seed and path
 test('generateChildKeyPair generates consistent key pairs for the same seed and path', async (t) => {
+  const { userA } = await createUsers()
   const path = "m/0'/1/0" // A specific path
 
   const childKeyPair1 = generateChildKeyPair(userA.seed, path)
@@ -152,6 +157,7 @@ test('generateChildKeyPair generates consistent key pairs for the same seed and 
 
 // Test for different seeds
 test('generateChildKeyPair generates different key pairs for different seeds', async (t) => {
+  const { userA, userB } = await createUsers()
   const path = "m/0'/1/0"
 
   const childKeyPair1 = generateChildKeyPair(userA.seed, path)
@@ -162,6 +168,7 @@ test('generateChildKeyPair generates different key pairs for different seeds', a
 
 // Test for different paths
 test('generateChildKeyPair generates different key pairs for different paths', async (t) => {
+  const { userA } = await createUsers()
   const path1 = "m/0'/1/0"
   const path2 = "m/0'/1/1"
 

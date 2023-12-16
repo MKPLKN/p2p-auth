@@ -1,8 +1,8 @@
-import inquirer from 'inquirer'
-import { getUsersList } from './storage.js'
-import { validateSeedPhrase } from './seed.js'
+const inquirer = require('inquirer')
+const { getUsersList } = require('./storage.js')
+const { validateSeedPhrase } = require('./seed.js')
 
-export function userActionPrompt () {
+function userActionPrompt () {
   return inquirer.prompt([
     {
       type: 'list',
@@ -13,7 +13,7 @@ export function userActionPrompt () {
   ])
 }
 
-export async function authUserPrompt () {
+async function authUserPrompt () {
   const users = await getUsersList()
 
   if (users.length === 0) {
@@ -48,7 +48,7 @@ export async function authUserPrompt () {
   return { username, password }
 }
 
-export async function createUserQuestions () {
+async function createUserQuestions () {
   // Ask for username and password (with confirmation)
   let username, password, confirmPassword
   let isPasswordMatch = false
@@ -90,7 +90,7 @@ export async function createUserQuestions () {
   return { username, password }
 }
 
-export async function restoreUserQuestions () {
+async function restoreUserQuestions () {
   let seedPhrase
   let isValidSeed = false
 
@@ -150,4 +150,11 @@ export async function restoreUserQuestions () {
   }
 
   return { seedPhrase, username, password }
+}
+
+module.exports = {
+  userActionPrompt,
+  authUserPrompt,
+  createUserQuestions,
+  restoreUserQuestions
 }

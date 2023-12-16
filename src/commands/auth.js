@@ -1,5 +1,5 @@
-import { userActionPrompt, authUserPrompt, createUserQuestions, restoreUserQuestions } from '../utils/prompts.js'
-import { authUser, createUser, restoreUser } from '../utils/users.js'
+const { userActionPrompt, authUserPrompt, createUserQuestions, restoreUserQuestions } = require('../utils/prompts.js')
+const { authUser, createUser, restoreUser } = require('../utils/users.js')
 
 async function handleLogin () {
   const { username, password } = await authUserPrompt()
@@ -40,7 +40,7 @@ async function handleRestoreUser () {
   console.log('User authenticated!', { publicKey: keyPair.publicKey.toString('hex') })
 }
 
-export async function authCLI () {
+module.exports = async function authCLI () {
   const { action } = await userActionPrompt()
 
   switch (action) {

@@ -1,4 +1,4 @@
-export class Memory {
+module.exports = class Memory {
   constructor () {
     this.seed = null
     this.keyPair = null
@@ -57,7 +57,3 @@ export class Memory {
     return key ? this.keyPair[key] ?? null : this.keyPair
   }
 }
-
-const memoryInstance = new Memory()
-
-export default memoryInstance

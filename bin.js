@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { program } from 'commander'
-import { authCLI } from './src/commands/auth.js'
+const { program } = require('commander')
+const authCLI = require('./src/commands/auth.js')
 
 program
   .command('auth')

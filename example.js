@@ -1,4 +1,4 @@
-import { generateChildKeyPair, generateMasterKeyPairFromMnemonic, mnemonicToSeed } from './src/utils/seed.js'
+const { generateChildKeyPair, generateMasterKeyPairFromMnemonic, mnemonicToSeed } = require('./src/utils/seed.js')
 
 // Example usage
 const mnemonic = 'quantum float volcano kiss often sniff zone lunar own civil episode party train lamp win satisfy eagle marriage slow hammer shoot chest total borrow'

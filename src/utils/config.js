@@ -1,16 +1,27 @@
-import fs from 'fs'
-import path from 'path'
+const os = require('os')
+const fs = require('fs')
+const path = require('path')
 
 let cachedConfig = null
 
-// Helper function to get default config
-export const getDefaultConfig = () => ({
-  usersLocation: './.p2p-auth'
-})
+// Get the user's home directory
+const homeDir = os.homedir()
 
-export const loadConfigs = () => {
-  const defaultConfig = getDefaultConfig()
+let defaultConfig = {
+  usersLocation: path.join(homeDir, '.p2p-auth')
+}
 
+function setConfig (key, value) {
+  if (typeof key === 'object') {
+    defaultConfig = { ...defaultConfig, ...key }
+  } else {
+    defaultConfig[key] = value
+  }
+
+  return defaultConfig
+}
+
+const loadConfigs = () => {
   // Read JSON config file
   const configPath = path.join(process.cwd(), 'p2p-auth-config.json')
   let configData = defaultConfig
@@ -31,7 +42,7 @@ export const loadConfigs = () => {
 }
 
 // Getter function
-export const getConfig = (key = null, defaultValue = null) => {
+const getConfig = (key = null, defaultValue = null) => {
   if (cachedConfig === null) {
     loadConfigs()
   }
@@ -42,3 +53,5 @@ export const getConfig = (key = null, defaultValue = null) => {
 
   return Object.prototype.hasOwnProperty.call(cachedConfig, key) ? cachedConfig[key] : defaultValue
 }
+
+module.exports = { getConfig, setConfig }

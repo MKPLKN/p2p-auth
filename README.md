@@ -8,6 +8,8 @@ p2p-auth is a Node.js library providing secure user authentication and key manag
 - **Restore User:** Restore user access from a mnemonic seed phrase, compatible with BIP39.
 - **Authenticate User:** Validate user credentials and provide access to the encrypted seed
 
+View how [P2P flashcards](https://github.com/MKPLKN/p2p-flashcards/blob/main/src/main/ipcHandlers/authHandlers.js) used these features.
+
 # Examples
 ```javascript
 // Create user

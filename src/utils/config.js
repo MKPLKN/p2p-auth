@@ -54,4 +54,4 @@ const getConfig = (key = null, defaultValue = null) => {
   return Object.prototype.hasOwnProperty.call(cachedConfig, key) ? cachedConfig[key] : defaultValue
 }
 
-module.exports = { getConfig, setConfig }
+module.exports = { getConfig, setConfig, loadConfigs }

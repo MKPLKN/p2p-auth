@@ -1,6 +1,13 @@
 # p2p-auth
 p2p-auth is a Node.js library providing secure user authentication and key management functionalities. It leverages cryptographic techniques for seed generation and encryption, based on the principles of BIP32 (Hierarchical Deterministic Wallets) and BIP39 (Mnemonic Code for Generating Deterministic Keys).
 
+By default, users are stored in the ".p2p-auth" directory located in the user's OS home directory. You can change the location like this:
+```javascript
+const auth = require('p2p-auth')
+auth.setConfig('usersLocation', './test-users')
+auth.loadConfigs()
+````
+
 ----
 
 # Features

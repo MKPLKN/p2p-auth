@@ -5,17 +5,17 @@ const { getConfig } = require('./config.js')
 const USERS_LOCATION = getConfig('usersLocation')
 
 function buildUserPath (username) {
-  return `${USERS_LOCATION}/${username}.bin`
+  return `${getConfig('usersLocation')}/${username}.bin`
 }
 
 async function getUsersList () {
   let files = []
   try {
-    files = await fs.readdir(USERS_LOCATION)
+    files = await fs.readdir(getConfig('usersLocation'))
   } catch (error) {
     if (error.code === 'ENOENT') {
       // Directory does not exist, create it recursively
-      await fs.mkdir(USERS_LOCATION, { recursive: true })
+      await fs.mkdir(getConfig('usersLocation'), { recursive: true })
     } else {
       throw error
     }
@@ -54,7 +54,9 @@ async function retrieveEncryptedSeedAndSalt (username) {
 
 async function storeEncryptedSeedAndSalt (username, encryptedSeedWithIVAndTag, saltBuffer) {
   // Ensure the storage directory exists
-  await fs.mkdir(USERS_LOCATION, { recursive: true })
+  await fs.mkdir(getConfig('usersLocation'), { recursive: true })
+
+  console.log({ location: getConfig('usersLocation') })
 
   // Construct the path for the user's file
   const filePath = buildUserPath(username)

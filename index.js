@@ -1,4 +1,5 @@
 const authCLI = require('./src/commands/auth.js')
+const { getConfig, setConfig } = require('./src/utils/config.js')
 const Memory = require('./src/utils/memory.js')
 const {
   getDerivationPath,
@@ -37,5 +38,7 @@ module.exports = {
   mnemonicToSeed,
   validateSeedPhrase,
   decryptSeed,
-  encryptSeed
+  encryptSeed,
+  getConfig,
+  setConfig
 }

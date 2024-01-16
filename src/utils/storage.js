@@ -56,8 +56,6 @@ async function storeEncryptedSeedAndSalt (username, encryptedSeedWithIVAndTag, s
   // Ensure the storage directory exists
   await fs.mkdir(getConfig('usersLocation'), { recursive: true })
 
-  console.log({ location: getConfig('usersLocation') })
-
   // Construct the path for the user's file
   const filePath = buildUserPath(username)
 

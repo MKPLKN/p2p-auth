@@ -2,8 +2,6 @@ const fs = require('fs/promises')
 const path = require('path')
 const { getConfig } = require('./config.js')
 
-const USERS_LOCATION = getConfig('usersLocation')
-
 function buildUserPath (username) {
   return `${getConfig('usersLocation')}/${username}.bin`
 }
@@ -46,7 +44,7 @@ async function retrieveEncryptedSeedAndSalt (username) {
     return { iv, authTag, encryptedSeed, salt }
   } catch (error) {
     if (error.code === 'ENOENT') {
-      return {} // File not found, return empty object
+      return { code: 404 } // File not found
     }
     throw error // Propagate other errors
   }

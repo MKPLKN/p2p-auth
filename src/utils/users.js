@@ -69,7 +69,13 @@ async function authUser ({ username, password }) {
   }
 }
 
+async function usernameExists (username) {
+  const response = await retrieveEncryptedSeedAndSalt(username)
+  return response.code !== 404
+}
+
 module.exports = {
+  usernameExists,
   createUser,
   restoreUser,
   authUser

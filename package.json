@@ -8,7 +8,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "standard && node test/all.js",
+    "test:generate": "brittle -r test/all.js test/*.js"
   },
   "bin": {
     "p2p-auth": "./bin.js"

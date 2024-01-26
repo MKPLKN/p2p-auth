@@ -17,14 +17,19 @@ const {
   decryptSeed,
   encryptSeed
 } = require('./src/utils/seed.js')
-const { createUser, authUser, restoreUser } = require('./src/utils/users.js')
+const { createUser, authUser, restoreUser, usernameExists } = require('./src/utils/users.js')
 
 module.exports = {
   Memory,
   authCLI,
+
+  // users.js
   createUser,
   authUser,
   restoreUser,
+  usernameExists,
+
+  // seed.js
   getDerivationPath,
   getNextDerivedPath,
   increaseDerivationPath,
@@ -39,6 +44,8 @@ module.exports = {
   validateSeedPhrase,
   decryptSeed,
   encryptSeed,
+
+  // config.js
   getConfig,
   setConfig,
   loadConfigs

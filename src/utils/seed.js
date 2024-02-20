@@ -1,6 +1,5 @@
 const { BIP32Factory } = require('bip32')
 const ecc = require('@bitcoinerlab/secp256k1')
-const crypto = require('crypto')
 const bip39 = require('bip39')
 const sodium = require('sodium-universal')
 const { keyPair } = require('hypercore-crypto')
@@ -115,14 +114,11 @@ function generateEncryptionKeyFromKeyPair (keyPair) {
   // Combine the public and private keys
   const combinedKeys = Buffer.concat([publicKey, secretKey])
 
-  // Hash the combined keys
-  const hash = crypto.createHash('sha256')
-  hash.update(combinedKeys)
+  // Hash the combined keys using sodium-native
+  const hash = Buffer.alloc(sodium.crypto_generichash_BYTES)
+  sodium.crypto_generichash(hash, combinedKeys)
 
-  // Use the hash digest as the encryption key
-  const encryptionKey = hash.digest() // Returns a Buffer
-
-  return encryptionKey
+  return hash
 }
 
 function generateChildKeyPair (seed, path = "m/0'/1/0") {
@@ -170,37 +166,52 @@ function mnemonicToSeed (mnemonic) {
   return entropy
 }
 
-function decryptSeed (iv, encryptedSeed, authTag, password, salt) {
-  // Derive a key using PBKDF2 with the password and salt
-  const key = crypto.pbkdf2Sync(password, salt.toString('hex'), 100000, 32, 'sha512')
+function decryptSeed (data) {
+  const { nonce, ciphertext, salt, password } = data
+  const key = deriveKey(password, salt)
 
-  // Create a decipher
-  const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv)
-  decipher.setAuthTag(authTag)
-
-  // Decrypt the seed
-  let decrypted = decipher.update(encryptedSeed.toString('hex'), 'hex', 'hex')
-  decrypted += decipher.final('hex')
-
-  return decrypted
+  return decryptWithSodium(ciphertext, nonce, key)
 }
 
 function encryptSeed (seed, password, salt) {
-  // Generate a key using PBKDF2 with the password and salt
-  const key = crypto.pbkdf2Sync(password, salt.toString('hex'), 100000, 32, 'sha512')
+  const key = deriveKey(password, salt)
 
-  // Generate a random IV
-  const iv = crypto.randomBytes(16)
+  return encryptWithSodium(seed, key)
+}
 
-  // Initialize an AES cipher in GCM mode
-  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
+function encryptWithSodium (plaintext, key) {
+  const nonce = Buffer.alloc(sodium.crypto_secretbox_NONCEBYTES)
+  sodium.randombytes_buf(nonce)
 
-  // Encrypt the seed and get the encrypted data
-  let encrypted = cipher.update(seed, 'hex', 'hex')
-  encrypted += cipher.final('hex')
+  const plaintextBuffer = Buffer.from(plaintext, 'hex')
+  const ciphertext = Buffer.alloc(plaintextBuffer.length + sodium.crypto_secretbox_MACBYTES)
+  sodium.crypto_secretbox_easy(ciphertext, plaintextBuffer, nonce, key)
 
-  // Concatenate the IV and authentication tag with the encrypted data
-  return iv.toString('hex') + encrypted + cipher.getAuthTag().toString('hex')
+  return { nonce, ciphertext }
+}
+
+function decryptWithSodium (ciphertext, nonce, key) {
+  const decrypted = Buffer.alloc(ciphertext.length - sodium.crypto_secretbox_MACBYTES)
+  if (!sodium.crypto_secretbox_open_easy(decrypted, ciphertext, nonce, key)) {
+    throw new Error('Decryption failed')
+  }
+  return decrypted.toString('hex')
+}
+
+function deriveKey (password, salt) {
+  const key = Buffer.alloc(sodium.crypto_secretbox_KEYBYTES)
+  const passwordBuffer = Buffer.from(password, 'utf8')
+
+  sodium.crypto_pwhash(
+    key,
+    passwordBuffer,
+    salt,
+    Number(process.env.OPSLIMIT || sodium.crypto_pwhash_OPSLIMIT_SENSITIVE),
+    Number(process.env.MEMLIMIT || sodium.crypto_pwhash_MEMLIMIT_SENSITIVE),
+    sodium.crypto_pwhash_ALG_DEFAULT
+  )
+
+  return key
 }
 
 module.exports = {
@@ -220,6 +231,9 @@ module.exports = {
   deriveChildSeed,
   seedToMnemonic,
   mnemonicToSeed,
+  encryptSeed,
   decryptSeed,
-  encryptSeed
+  encryptWithSodium,
+  decryptWithSodium,
+  deriveKey
 }

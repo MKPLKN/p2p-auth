@@ -1,4 +1,5 @@
 const test = require('brittle')
+const sodium = require('sodium-universal')
 const fs = require('fs/promises')
 const { createUser, authUser, restoreUser, usernameExists } = require('../src/utils/users.js')
 const { validateKeyPair } = require('hypercore-crypto')
@@ -6,6 +7,9 @@ const { validateMnemonic } = require('bip39')
 const { validateSeed } = require('../src/utils/seed.js')
 const Memory = require('../src/utils/memory.js')
 const { setConfig, loadConfigs, getConfig } = require('../src/utils/config.js')
+
+process.env.OPSLIMIT = sodium.crypto_pwhash_OPSLIMIT_MIN
+process.env.MEMLIMIT = sodium.crypto_pwhash_MEMLIMIT_MIN
 
 setConfig('usersLocation', './test/users')
 loadConfigs()

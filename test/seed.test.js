@@ -1,8 +1,11 @@
 const test = require('brittle')
 const sodium = require('sodium-universal')
-const { getBip32, getPathLastIndex, getDerivationPath, getNextDerivedPath, increaseDerivationPath, generateKeyPairFromSeed, generateMasterKeyPairFromMnemonic, generateEncryptionKeyFromKeyPair, generateChildKeyPair, generateRandomSeed, encryptSeed, decryptSeed } = require('../src/utils/seed.js')
-const { keyPair } = require('hypercore-crypto')
-const { createUser } = require('../src/utils/users.js')
+const { getBip32, getPathLastIndex, getDerivationPath, getNextDerivedPath, increaseDerivationPath, generateKeyPairFromSeed, generateMasterKeyPairFromMnemonic, generateEncryptionKeyFromKeyPair, generateChildKeyPair, generateRandomSeed, encryptSeed, decryptSeed, deriveKey } = require('../src/utils/seed.js')
+const { keyPair, randomBytes } = require('hypercore-crypto')
+const { createUser, authUser } = require('../src/utils/users.js')
+
+process.env.OPSLIMIT = sodium.crypto_pwhash_OPSLIMIT_MIN
+process.env.MEMLIMIT = sodium.crypto_pwhash_MEMLIMIT_MIN
 
 async function createUsers () {
   const userA = await createUser({ username: 'testA', password: 'password' })
@@ -192,17 +195,14 @@ test('generateRandomSeed generates a seed of correct length', async (t) => {
 test('decryptSeed correctly decrypts an encrypted seed', async (t) => {
   const seed = '1234567890abcdef1234567890abcdef'
   const password = 'strongpassword'
-  const salt = 'salt'
+  const salt = randomBytes(16)
 
   // Encrypt the seed first
-  const encryptedData = encryptSeed(seed, password, salt)
-  // Extract iv and authTag from the encrypted data
-  const iv = Buffer.from(encryptedData.slice(0, 32), 'hex')
-  const encryptedSeed = Buffer.from(encryptedData.slice(32, -32), 'hex')
-  const authTag = Buffer.from(encryptedData.slice(-32), 'hex')
+  const { nonce, ciphertext } = encryptSeed(seed, password, salt)
 
   // Decrypt the seed
-  const decryptedSeed = decryptSeed(iv, encryptedSeed, authTag, password, salt)
+  // const decryptedSeed = decryptSeed(iv, encryptedSeed, authTag, password, salt)
+  const decryptedSeed = decryptSeed({ nonce, ciphertext, salt, password })
 
   t.is(decryptedSeed, seed, 'Decrypted seed should match the original seed')
 })

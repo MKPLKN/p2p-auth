@@ -1,6 +1,6 @@
 const { storeNonceChiperAndSalt, retrieveNonceChiperAndSalt } = require('./storage.js')
 const { generateKeyPairFromSeed, decryptSeed, encryptSeed } = require('./seed.js')
-const { entropyToMnemonic, mnemonicToSeed } = require('./mnemonic.js')
+const { entropyToMnemonic, mnemonicToSeed, validateMnemonic } = require('./mnemonic.js')
 const Memory = require('./memory.js')
 const { randomBytes } = require('hypercore-crypto')
 const sodium = require('sodium-universal')
@@ -21,6 +21,7 @@ async function createUser ({ username, password }) {
 }
 
 async function restoreUser ({ seedPhrase, username, password }) {
+  if (!validateMnemonic(seedPhrase)) throw new Error('Invalid mnemonic')
   const seed = mnemonicToSeed(seedPhrase)
   const salt = randomBytes(sodium.crypto_pwhash_SALTBYTES)
   const nonceAndChiper = encryptSeed(seed, password, salt)

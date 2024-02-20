@@ -90,5 +90,13 @@ test('create, authenticate, and restore user flow', async (t) => {
   t.alike(restoredUser, createdUser.keyPair, 'Key pairs should match for restored user')
   t.ok(validateKeyPair(restoredUser), 'Restored key pair should be valid')
 
+  // Step 3: Restore User - invalid mnemonic
+  try {
+    await restoreUser({ seedPhrase: 'invalid', username, password })
+    t.fail('Invalid mnemonic should throw')
+  } catch (error) {
+    t.ok(true)
+  }
+
   await removeUsers()
 })

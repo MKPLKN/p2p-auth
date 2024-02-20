@@ -48,7 +48,6 @@ async function authUser ({ username, password }) {
     // If keyPair is successfully generated, the user is authenticated
     return { username, keyPair, seed }
   } catch (error) {
-    console.log(error)
     return null
   }
 }

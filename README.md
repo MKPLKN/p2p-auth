@@ -11,13 +11,14 @@ auth.loadConfigs()
 ----
 
 # Features
+> v2.0.0 uses sodium instead of bip32/39
 - **Create User:** Generate and store user credentials locally with encryption, following BIP32 and BIP39 standards for seed generation and mnemonic phrase creation.
 - **Restore User:** Restore user access from a mnemonic seed phrase, compatible with BIP39.
 - **Authenticate User:** Validate user credentials and provide access to the encrypted seed
 
 View how [P2P flashcards](https://github.com/MKPLKN/p2p-flashcards) used these features.
 
-# Examples
+# Examples 
 ```javascript
 // Create user
 // This stores the encrypted seed into the local directory.
@@ -34,8 +35,11 @@ await restoreUser({ seedPhrase, username, password });
 // and decrypt the seed based on the given password.
 const { keyPair, seed } = await authUser({ username, password });
 
-// Create a new child key pair from master keys
+// Create a new child key pair from master keys <= v2.0.0
 const childKeyPair = generateChildKeyPair(seed, "m/0'/1/1");
+
+// Create a new child key pair from master keys >= v2.0.0
+const childKeyPair = generateChildKeyPair(seed, "<child_keypair_name>");
 ```
 
 

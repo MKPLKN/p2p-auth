@@ -1,6 +1,6 @@
 const inquirer = require('inquirer')
 const { getUsersList } = require('./storage.js')
-const { validateSeedPhrase } = require('./seed.js')
+const { validateMnemonic } = require('./mnemonic.js')
 
 function userActionPrompt () {
   return inquirer.prompt([
@@ -104,8 +104,7 @@ async function restoreUserQuestions () {
       }
     ]))
 
-    // isValidSeed = true
-    isValidSeed = validateSeedPhrase(seedPhrase)
+    isValidSeed = validateMnemonic(seedPhrase)
     if (!isValidSeed) {
       console.error('Invalid seed phrase. Please try again.')
     }

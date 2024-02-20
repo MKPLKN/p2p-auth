@@ -1,7 +1,6 @@
 const fs = require('fs/promises')
 const path = require('path')
 const { getConfig } = require('./config.js')
-const { randomBytes } = require('crypto')
 
 function buildUserPath (username) {
   return `${getConfig('usersLocation')}/${username}.bin`

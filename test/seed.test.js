@@ -1,8 +1,9 @@
 const test = require('brittle')
 const sodium = require('sodium-universal')
-const { getBip32, getPathLastIndex, getDerivationPath, getNextDerivedPath, increaseDerivationPath, generateKeyPairFromSeed, generateMasterKeyPairFromMnemonic, generateEncryptionKeyFromKeyPair, generateChildKeyPair, generateRandomSeed, encryptSeed, decryptSeed, deriveKey } = require('../src/utils/seed.js')
+const { generateKeyPairFromSeed, generateEncryptionKeyFromKeyPair, generateChildKeyPair, encryptSeed, decryptSeed } = require('../src/utils/seed.js')
 const { keyPair, randomBytes } = require('hypercore-crypto')
-const { createUser, authUser } = require('../src/utils/users.js')
+const { createUser } = require('../src/utils/users.js')
+const { generateKeyPairFromMnemonic } = require('../src/utils/mnemonic.js')
 
 process.env.OPSLIMIT = sodium.crypto_pwhash_OPSLIMIT_MIN
 process.env.MEMLIMIT = sodium.crypto_pwhash_MEMLIMIT_MIN
@@ -13,90 +14,6 @@ async function createUsers () {
 
   return { userA, userB }
 }
-
-test('getBip32 initializes and returns bip32', async (t) => {
-  const bip32Instance = getBip32()
-
-  // Assertions to verify the correct behavior
-  t.ok(bip32Instance, 'bip32 instance should be initialized and returned')
-
-  // Assert that the bip32 instance has a 'fromSeed' method
-  t.ok(bip32Instance.fromSeed, 'bip32 instance should have a fromSeed method')
-  t.is(typeof bip32Instance.fromSeed, 'function', 'fromSeed should be a function')
-})
-
-test('getPathLastIndex with valid path', async (t) => {
-  const result = getPathLastIndex('m/44/0/0')
-
-  t.alike(result.parts, ['m', '44', '0', '0'], 'Parts should correctly split the path')
-  t.is(result.lastIndex, 0, 'Last index should be 0')
-})
-
-test('getPathLastIndex with single part path', async (t) => {
-  const result = getPathLastIndex('m')
-
-  t.alike(result.parts, ['m'], 'Parts should contain only one element')
-  t.ok(isNaN(result.lastIndex), 'Last index should be NaN for non-numeric part')
-})
-
-test('getPathLastIndex with empty path', async (t) => {
-  const result = getPathLastIndex('')
-
-  t.is(result.parts.length, 1, 'Parts should have one element for empty path')
-  t.ok(isNaN(result.lastIndex), 'Last index should be NaN for empty path')
-})
-
-test('getPathLastIndex with non-numeric last part', async (t) => {
-  const result = getPathLastIndex('m/44/0/x')
-
-  t.alike(result.parts, ['m', '44', '0', 'x'], 'Parts should correctly split the path')
-  t.ok(isNaN(result.lastIndex), 'Last index should be NaN for non-numeric last part')
-})
-
-// Tests for getDerivationPath
-test('getDerivationPath with default index', async (t) => {
-  t.is(getDerivationPath(), 'm/0\'/1/0', 'Should return the default path for index 0')
-})
-
-test('getDerivationPath with specified index', async (t) => {
-  t.is(getDerivationPath(5), 'm/0\'/1/5', 'Should return the path for the specified index')
-})
-
-// Tests for getNextDerivedPath
-test('getNextDerivedPath with empty array', async (t) => {
-  t.is(getNextDerivedPath([]), 'm/0\'/1/0', 'Should return the default path for an empty array')
-})
-
-test('getNextDerivedPath with valid paths', async (t) => {
-  t.is(getNextDerivedPath(['m/0\'/1/2', 'm/0\'/1/3']), 'm/0\'/1/4', 'Should return the next path in the sequence')
-})
-
-test('getNextDerivedPath with invalid paths', async (t) => {
-  t.test('throws error for invalid paths', (t) => {
-    try {
-      getNextDerivedPath(['invalid', 'path'])
-      t.fail('Should have thrown an error')
-    } catch (error) {
-      t.pass('Expected error thrown')
-    }
-  })
-})
-
-// Tests for increaseDerivationPath
-test('increaseDerivationPath with valid path', async (t) => {
-  t.is(increaseDerivationPath('m/0\'/1/2'), 'm/0\'/1/3', 'Should increment the last index of the path')
-})
-
-test('increaseDerivationPath with invalid path', async (t) => {
-  t.test('handles invalid path input', (t) => {
-    try {
-      increaseDerivationPath('invalid/path')
-      t.fail('Should have thrown an error')
-    } catch (error) {
-      t.pass('Expected error thrown')
-    }
-  })
-})
 
 // Tests for generateKeyPairFromSeed
 test('generateKeyPairFromSeed with string seed', async (t) => {
@@ -116,9 +33,9 @@ test('generateKeyPairFromSeed with buffer seed', async (t) => {
 })
 
 // Test with a valid mnemonic
-test('generateMasterKeyPairFromMnemonic with valid mnemonic', async (t) => {
+test('generateKeyPairFromMnemonic with valid mnemonic', async (t) => {
   const validMnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'
-  const keyPair = generateMasterKeyPairFromMnemonic(validMnemonic)
+  const keyPair = generateKeyPairFromMnemonic(validMnemonic)
 
   t.ok(keyPair.publicKey && keyPair.secretKey, 'Should return a key pair with public and secret keys')
   t.is(keyPair.publicKey.length, 32)
@@ -126,11 +43,11 @@ test('generateMasterKeyPairFromMnemonic with valid mnemonic', async (t) => {
 })
 
 // Test with an invalid mnemonic
-test('generateMasterKeyPairFromMnemonic with invalid mnemonic', async (t) => {
+test('generateKeyPairFromMnemonic with invalid mnemonic', async (t) => {
   const invalidMnemonic = 'invalid mnemonic'
 
   try {
-    generateMasterKeyPairFromMnemonic(invalidMnemonic)
+    generateKeyPairFromMnemonic(invalidMnemonic)
     t.fail('Should have thrown an error or returned an invalid key pair')
   } catch (error) {
     t.pass('Expected error thrown or invalid key pair returned')
@@ -179,17 +96,6 @@ test('generateChildKeyPair generates different key pairs for different paths', a
   const childKeyPair2 = generateChildKeyPair(userA.seed, path2)
 
   t.unlike(childKeyPair1, childKeyPair2, 'Should generate different child key pairs for different paths')
-})
-
-test('generateRandomSeed generates a seed of correct length', async (t) => {
-  const seedHex = generateRandomSeed()
-  const seedBytesLength = sodium.crypto_sign_SEEDBYTES
-  const expectedLength = seedBytesLength * 2 // Each byte is represented by two hex characters
-
-  t.is(seedHex.length, expectedLength, 'Seed should have the correct length in hex format')
-  t.is(typeof seedHex, 'string', 'Seed should have be in string format')
-  const hexRegex = /^[0-9a-fA-F]+$/ // Regex for hexadecimal
-  t.ok(hexRegex.test(seedHex), 'Seed should be in hexadecimal format')
 })
 
 test('decryptSeed correctly decrypts an encrypted seed', async (t) => {

@@ -11,7 +11,7 @@ auth.loadConfigs()
 ----
 
 # Features
-> v2.0.0 uses sodium instead of bip32/39
+> v2.0.0 uses sodium instead of @bitcoinerlab/secp256k1, bip32 & bip39 packages. For example, [mnemonic.js](https://github.com/MKPLKN/p2p-auth/blob/main/src/utils/mnemonic.js)
 - **Create User:** Generate and store user credentials locally with encryption, following BIP32 and BIP39 standards for seed generation and mnemonic phrase creation.
 - **Restore User:** Restore user access from a mnemonic seed phrase, compatible with BIP39.
 - **Authenticate User:** Validate user credentials and provide access to the encrypted seed

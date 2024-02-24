@@ -86,5 +86,6 @@ module.exports = {
   decryptSeed,
   encryptWithSodium,
   decryptWithSodium,
-  deriveKey
+  deriveKey,
+  getKeyChain
 }

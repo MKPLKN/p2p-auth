@@ -25,8 +25,8 @@ function generateEncryptionKeyFromKeyPair (keyPair) {
 
 function generateChildKeyPair (seed, name) {
   if (!name) throw new Error('Name your child!')
-  const kp = generateKeyPairFromSeed(seed)
-  const kc = getKeyChain(kp)
+  const s = typeof seed === 'string' ? Buffer.from(seed, 'hex') : seed
+  const kc = getKeyChain(Keychain.keyPair(s))
   return keyPair(kc.get(name).scalar)
 }
 
